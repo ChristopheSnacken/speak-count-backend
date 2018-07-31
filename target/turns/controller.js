@@ -17,6 +17,7 @@ const entity_1 = require("../sessions/entity");
 const entity_2 = require("./entity");
 const class_validator_1 = require("class-validator");
 const index_1 = require("../index");
+const average = arr => arr.reduce((p, c) => p + c, 0) / arr.length;
 class AuthenticatePayload {
 }
 __decorate([
@@ -28,16 +29,11 @@ __decorate([
     __metadata("design:type", Number)
 ], AuthenticatePayload.prototype, "participantId", void 0);
 __decorate([
-    class_validator_1.IsDateString(),
-    __metadata("design:type", String)
-], AuthenticatePayload.prototype, "startTime", void 0);
-__decorate([
     class_validator_1.IsOptional(),
-    class_validator_1.IsDateString(),
-    __metadata("design:type", String)
-], AuthenticatePayload.prototype, "endTime", void 0);
+    __metadata("design:type", Array)
+], AuthenticatePayload.prototype, "sample", void 0);
 let TurnsController = class TurnsController {
-    async createTurn({ sessionId, participantId, startTime, endTime }) {
+    async createTurn({ sessionId, participantId, sample }) {
         const session = await entity_1.Session.findOne(sessionId);
         if (!session)
             throw new routing_controllers_1.NotFoundError('Session not found');
@@ -46,26 +42,42 @@ let TurnsController = class TurnsController {
         const participant = await entity_1.Participant.findOne(participantId);
         if (!participant)
             throw new routing_controllers_1.NotFoundError('You are not part of this session');
-        const turn = await entity_2.default.create();
-        turn.session = session;
-        turn.participant = participant;
-        turn.startTime = startTime;
-        turn.endtTime = endTime;
-        const newTurn = await turn.save();
-        const timeSpoken = Math.round((new Date(endTime).getTime() - new Date(startTime).getTime()) / 1000);
-        participant.timeSpeakingSeconds = participant.timeSpeakingSeconds + timeSpoken;
-        if (participant.timeSpeakingSeconds > session.timePerPiece && participant.timeSpeakingSeconds <= 5 * session.timePerPiece) {
-            participant.numberOfPieces = 5 - Math.trunc(participant.timeSpeakingSeconds / session.timePerPiece);
+        participant.avgDecibels = average(sample);
+        await participant.save();
+        const [{ "max": maxAvg }] = await entity_1.Participant.query(`select MAX(avg_decibels) from participants where session_id=${sessionId}`);
+        const [speaker] = await entity_1.Participant.query(`select * from participants where avg_decibels=${maxAvg} and session_id=${sessionId}`);
+        if (participant.avgDecibels > 20 && speaker.id === participantId && participant.participantStatus === 'inactive') {
+            const turn = await entity_2.default.create();
+            turn.session = session;
+            turn.participant = participant;
+            const startTime = new Date().toISOString();
+            turn.startTime = startTime;
+            const newTurn = await turn.save();
+            participant.lastTurnId = newTurn.id;
+            participant.participantStatus = 'active';
+            const updatedParticipant = await participant.save();
+            const [payload] = await entity_1.Participant.query(`select * from participants where id=${updatedParticipant.id}`);
+            index_1.io.emit('UPDATE_PARTICIPANT', payload);
+            return payload;
         }
-        const updatedParticipant = await participant.save();
-        const [payload] = await entity_1.Participant.query(`select * from participants where id=${updatedParticipant.id}`);
-        index_1.io.emit('UPDATE_PARTICIPANT', payload);
-        const [{ 'sum': sumpayload }] = await entity_1.Participant.query(`SELECT SUM(number_of_pieces) FROM participants where session_id=${session.id}`);
-        session.piecesToComplete = sumpayload;
-        await session.save();
-        const [updatedSession] = await entity_1.Session.query(`select * from sessions where id=${session.id}`);
-        index_1.io.emit('UPDATE_SESSION', updatedSession);
-        return newTurn;
+        if (participant.avgDecibels < 20 && participant.participantStatus === 'active' || participant.avgDecibels > 20 && speaker.id !== participantId && participant.participantStatus === 'active') {
+            console.log('working');
+            const turn = await entity_2.default.findOne(participant.lastTurnId);
+            if (!turn)
+                throw new routing_controllers_1.BadRequestError('turn entity not found');
+            const endTime = new Date().toISOString();
+            turn.endTime = endTime;
+            const timeSpoken = Math.round((new Date(turn.endTime).getTime() - new Date(turn.startTime).getTime()) / 1000);
+            participant.timeSpeakingSeconds = participant.timeSpeakingSeconds + timeSpoken;
+            if (participant.timeSpeakingSeconds > session.timePerPiece && participant.timeSpeakingSeconds <= 5 * session.timePerPiece) {
+                participant.numberOfPieces = 5 - Math.trunc(participant.timeSpeakingSeconds / session.timePerPiece);
+            }
+            participant.participantStatus = 'inactive';
+            const updatedParticipant = await participant.save();
+            const [payload] = await entity_1.Participant.query(`select * from participants where id=${updatedParticipant.id}`);
+            return payload;
+        }
+        return speaker;
     }
 };
 __decorate([
