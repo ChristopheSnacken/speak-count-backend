@@ -28,7 +28,7 @@ export class Session extends BaseEntity {
   @Column({nullable: true})
   stimatedTime: number
 
-  @Column({ default: 0})
+  @Column('numeric',{ default: 0})
   timePerPiece: number
 
   @Column('text',{nullable: true, default: 'created'})
@@ -63,5 +63,14 @@ export class Participant extends BaseEntity {
 
   @OneToMany(_ => Turn, turn => turn.participant)
   turns: Turn[]
+
+  @Column('numeric', {nullable: true})
+  avgDecibels: number
+
+  @Column({nullable: true})
+  lastTurnId?: number
+
+  @Column('text',{nullable: true, default: 'inactive'})
+  participantStatus: string
 
 }

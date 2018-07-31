@@ -46,7 +46,7 @@ __decorate([
     __metadata("design:type", Number)
 ], Session.prototype, "stimatedTime", void 0);
 __decorate([
-    typeorm_1.Column({ default: 0 }),
+    typeorm_1.Column('numeric', { default: 0 }),
     __metadata("design:type", Number)
 ], Session.prototype, "timePerPiece", void 0);
 __decorate([
@@ -91,6 +91,18 @@ __decorate([
     typeorm_1.OneToMany(_ => entity_1.default, turn => turn.participant),
     __metadata("design:type", Array)
 ], Participant.prototype, "turns", void 0);
+__decorate([
+    typeorm_1.Column('numeric', { nullable: true }),
+    __metadata("design:type", Number)
+], Participant.prototype, "avgDecibels", void 0);
+__decorate([
+    typeorm_1.Column({ nullable: true }),
+    __metadata("design:type", Number)
+], Participant.prototype, "lastTurnId", void 0);
+__decorate([
+    typeorm_1.Column('text', { nullable: true, default: 'inactive' }),
+    __metadata("design:type", String)
+], Participant.prototype, "participantStatus", void 0);
 Participant = __decorate([
     typeorm_1.Entity()
 ], Participant);

@@ -49,9 +49,8 @@ export default class SessionsController {
         if(!session) throw new NotFoundError('Session code is incorrect!')
         if(session.joinedParticipants === session.numberOfParticipants) throw new ForbiddenError('The session is already full')
         session.joinedParticipants = session.joinedParticipants + 1
-        // if(session.joinedParticipants === session.numberOfParticipants) {
-        //     session.status = 'started'
-        // }
+      
+        
         const updatedSession = await session.save()
 
 

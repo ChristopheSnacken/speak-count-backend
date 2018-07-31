@@ -21,6 +21,6 @@ export default class Turn extends BaseEntity {
     startTime: string
 
     @Column({type: 'timestamp' , nullable: true})
-    endtTime: string
+    endTime: string
 
 }
