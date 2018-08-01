@@ -67,6 +67,11 @@ export default class SessionsController {
         const [payload] =await Session.query(`select * from sessions where id=${updatedSession.id}`)
 
         io.emit( 'UPDATE_SESSION', payload )
+        
+        io.emit('action', {
+            type: 'UPDATE_SESSION',
+            payload: payload
+          })
 
         const newParticipant = await Participant.query(`select * from participants where id=${participant.id}`)
 
