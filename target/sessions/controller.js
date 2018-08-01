@@ -32,7 +32,7 @@ let SessionsController = class SessionsController {
         const code = getRandomInt(1000, 9999);
         entity.id = code;
         entity.numberOfPieces = entity.numberOfParticipants === undefined ? 0 : entity.numberOfParticipants * 5;
-        entity.qualityPieces = entity.numberOfParticipants === undefined ? 0 : entity.numberOfParticipants / 2;
+        entity.qualityPieces = entity.numberOfParticipants === undefined ? 0 : Math.ceil(entity.numberOfParticipants / 2);
         entity.timePerPiece = (entity.numberOfParticipants === undefined || entity.stimatedTime === undefined) ?
             0 : (entity.stimatedTime * 0.4) / (entity.numberOfParticipants * 5);
         entity.piecesToComplete = entity.numberOfPieces + entity.qualityPieces;
