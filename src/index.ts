@@ -43,7 +43,7 @@ io.on('connect', (socket) => {
       const [{"max": maxAvg}] = await Participant.query(`select MAX(avg_decibels) from participants where session_id=${sessionId}`)
       const [speaker] = await Participant.query(`select * from participants where avg_decibels=${maxAvg} and session_id=${sessionId}`)
   
-      if(participant.avgDecibels > -20 && speaker.id === participantId && participant.participantStatus === 'inactive') {
+      if(participant.avgDecibels > -30 && speaker.id === participantId && participant.participantStatus === 'inactive') {
           
           const turn =  await Turn.create()
           
@@ -72,7 +72,7 @@ io.on('connect', (socket) => {
   
       }
   
-      if(participant.avgDecibels < -20 && participant.participantStatus === 'active' || participant.avgDecibels > 20 && speaker.id !== participantId && participant.participantStatus === 'active') {
+      if(participant.avgDecibels < -30 && participant.participantStatus === 'active' || participant.avgDecibels > 20 && speaker.id !== participantId && participant.participantStatus === 'active') {
           console.log('working')
           const turn = await Turn.findOne(participant.lastTurnId)
           if(!turn) throw new BadRequestError('turn entity not found')

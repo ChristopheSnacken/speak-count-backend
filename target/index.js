@@ -38,7 +38,7 @@ exports.io.on('connect', (socket) => {
         await participant.save();
         const [{ "max": maxAvg }] = await entity_1.Participant.query(`select MAX(avg_decibels) from participants where session_id=${sessionId}`);
         const [speaker] = await entity_1.Participant.query(`select * from participants where avg_decibels=${maxAvg} and session_id=${sessionId}`);
-        if (participant.avgDecibels > -20 && speaker.id === participantId && participant.participantStatus === 'inactive') {
+        if (participant.avgDecibels > -30 && speaker.id === participantId && participant.participantStatus === 'inactive') {
             const turn = await entity_2.default.create();
             turn.session = session;
             turn.participant = participant;
@@ -49,7 +49,7 @@ exports.io.on('connect', (socket) => {
             participant.participantStatus = 'active';
             const updatedParticipant = await participant.save();
         }
-        if (participant.avgDecibels < -20 && participant.participantStatus === 'active' || participant.avgDecibels > 20 && speaker.id !== participantId && participant.participantStatus === 'active') {
+        if (participant.avgDecibels < -30 && participant.participantStatus === 'active' || participant.avgDecibels > 20 && speaker.id !== participantId && participant.participantStatus === 'active') {
             console.log('working');
             const turn = await entity_2.default.findOne(participant.lastTurnId);
             if (!turn)
