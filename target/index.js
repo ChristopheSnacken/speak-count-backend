@@ -69,11 +69,19 @@ exports.io.on('connect', (socket) => {
             const updatedParticipant = await participant.save();
             const [payload] = await entity_1.Participant.query(`select * from participants where id=${updatedParticipant.id}`);
             exports.io.emit('UPDATE_PARTICIPANT', payload);
+            exports.io.emit('action', {
+                type: 'UPDATE_PARTICIPANT',
+                payload: payload
+            });
             const [{ 'sum': sumpayload }] = await entity_1.Participant.query(`SELECT SUM(number_of_pieces) FROM participants where session_id=${session.id}`);
             session.piecesToComplete = sumpayload;
             await session.save();
             const [updatedSession] = await entity_1.Session.query(`select * from sessions where id=${session.id}`);
             exports.io.emit('UPDATE_SESSION', updatedSession);
+            exports.io.emit('action', {
+                type: 'UPDATE_SESSION',
+                payload: updatedSession
+            });
         }
     });
 });
