@@ -119,13 +119,17 @@ export default class TurnsController {
             @Param('sessionId') sessionId : number,
             @BodyParam('likeTimestamp') timestamp : string
         ) {
+            
             const session = await Session.findOne(sessionId)
             if(!session) throw new NotFoundError('session not found')
 
             const isoTime = new Date(timestamp).toISOString()
-            const [{"id": turnId}] = await Turn.query(`select id from turns where start_time < '${isoTime}'::timestamp  and end_time > '${isoTime}'::timestamp and session_id=${sessionId}`)
-           
-            const turn = await Turn.findOne(turnId)
+            
+            const turnId = await Turn.query(`select id from turns where start_time < '${isoTime}'::timestamp  and end_time > '${isoTime}'::timestamp and session_id=${sessionId}`)
+            if(turnId.length === 0) throw new NotFoundError('turn id not found')
+
+            const [{"id": tId}] = turnId
+            const turn = await Turn.findOne(tId)
             if(!turn) throw new NotFoundError('turn id not found')
             
             turn.contributionCount = turn.contributionCount + 1
