@@ -94,16 +94,17 @@ let TurnsController = class TurnsController {
         if (!session)
             throw new routing_controllers_1.NotFoundError('session not found');
         const isoTime = new Date(timestamp).toISOString();
-        const turnId = await entity_2.default.query(`select id from turns where start_time < '${isoTime}'::timestamp  and end_time > '${isoTime}'::timestamp and session_id=${sessionId}`);
+        const [{ "id": turnId }] = await entity_2.default.query(`select id from turns where start_time < '${isoTime}'::timestamp  and end_time > '${isoTime}'::timestamp and session_id=${sessionId}`);
         const turn = await entity_2.default.findOne(turnId);
         if (!turn)
             throw new routing_controllers_1.NotFoundError('turn id not found');
         turn.contributionCount = turn.contributionCount + 1;
-        await turn.save();
+        const updatedTurn = await turn.save();
         if (turn.contributionCount === 2 && session.qualityPieces > 0) {
             session.qualityPieces = session.qualityPieces - 1;
             await session.save();
         }
+        return updatedTurn;
     }
 };
 __decorate([

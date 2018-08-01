@@ -123,18 +123,20 @@ export default class TurnsController {
             if(!session) throw new NotFoundError('session not found')
 
             const isoTime = new Date(timestamp).toISOString()
-            const turnId = await Turn.query(`select id from turns where start_time < '${isoTime}'::timestamp  and end_time > '${isoTime}'::timestamp and session_id=${sessionId}`)
-
+            const [{"id": turnId}] = await Turn.query(`select id from turns where start_time < '${isoTime}'::timestamp  and end_time > '${isoTime}'::timestamp and session_id=${sessionId}`)
+           
             const turn = await Turn.findOne(turnId)
             if(!turn) throw new NotFoundError('turn id not found')
             
             turn.contributionCount = turn.contributionCount + 1
-            await turn.save()
-
+            const updatedTurn = await turn.save()
+            
             if(turn.contributionCount === 2 && session.qualityPieces > 0) {
+              
                 session.qualityPieces = session.qualityPieces - 1
                 await session.save()
             }
+            return updatedTurn
         }
 
 
