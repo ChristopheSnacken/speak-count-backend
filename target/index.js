@@ -48,9 +48,6 @@ exports.io.on('connect', (socket) => {
             participant.lastTurnId = newTurn.id;
             participant.participantStatus = 'active';
             const updatedParticipant = await participant.save();
-            const [payload] = await entity_1.Participant.query(`select * from participants where id=${updatedParticipant.id}`);
-            exports.io.emit('UPDATE_PARTICIPANT', payload);
-            return payload;
         }
         if (participant.avgDecibels < -20 && participant.participantStatus === 'active' || participant.avgDecibels > 20 && speaker.id !== participantId && participant.participantStatus === 'active') {
             console.log('working');
@@ -77,9 +74,7 @@ exports.io.on('connect', (socket) => {
             await session.save();
             const [updatedSession] = await entity_1.Session.query(`select * from sessions where id=${session.id}`);
             exports.io.emit('UPDATE_SESSION', updatedSession);
-            return payload;
         }
-        return speaker;
     });
 });
 db_1.default()

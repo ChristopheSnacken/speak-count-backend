@@ -63,11 +63,11 @@ io.on('connect', (socket) => {
   
           const updatedParticipant = await participant.save()
   
-          const [payload] = await Participant.query(`select * from participants where id=${updatedParticipant.id}`)
+          // const [payload] = await Participant.query(`select * from participants where id=${updatedParticipant.id}`)
   
-          io.emit('UPDATE_PARTICIPANT', payload)
+          // io.emit('UPDATE_PARTICIPANT', payload)
   
-          return payload
+          // return payload
   
   
       }
@@ -110,10 +110,10 @@ io.on('connect', (socket) => {
   
           io.emit( 'UPDATE_SESSION', updatedSession )
   
-          return payload
+          // return payload
       }
   
-      return speaker
+      // return speaker
       
     });
 
