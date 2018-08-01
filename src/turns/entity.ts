@@ -23,4 +23,7 @@ export default class Turn extends BaseEntity {
     @Column({type: 'timestamp' , nullable: true})
     endTime: string
 
+    @Column({default: 0, nullable: true})
+    contributionCount: number
+
 }

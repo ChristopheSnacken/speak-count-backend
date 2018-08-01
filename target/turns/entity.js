@@ -36,6 +36,10 @@ __decorate([
     typeorm_1.Column({ type: 'timestamp', nullable: true }),
     __metadata("design:type", String)
 ], Turn.prototype, "endTime", void 0);
+__decorate([
+    typeorm_1.Column({ default: 0, nullable: true }),
+    __metadata("design:type", Number)
+], Turn.prototype, "contributionCount", void 0);
 Turn = __decorate([
     typeorm_1.Entity()
 ], Turn);

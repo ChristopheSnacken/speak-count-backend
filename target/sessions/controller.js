@@ -15,6 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const routing_controllers_1 = require("routing-controllers");
 const entity_1 = require("./entity");
 const index_1 = require("../index");
+const getRandomInt = (min, max) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+};
 let SessionsController = class SessionsController {
     async getSessions() {
         const sessions = await entity_1.Session.query(`select * from sessions`);
@@ -26,7 +29,7 @@ let SessionsController = class SessionsController {
     }
     async createSession(session) {
         const entity = await entity_1.Session.create(session);
-        const code = Math.floor(Math.random() * Math.floor(9999));
+        const code = getRandomInt(1000, 9999);
         entity.id = code;
         entity.numberOfPieces = entity.numberOfParticipants === undefined ? 0 : entity.numberOfParticipants * 5;
         entity.qualityPieces = entity.numberOfParticipants === undefined ? 0 : entity.numberOfParticipants / 2;

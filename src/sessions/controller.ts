@@ -2,6 +2,10 @@ import { JsonController, Post, Get, Param, HttpCode, Body, Put, NotFoundError, B
 import { Session, Participant } from './entity'
 import {io} from '../index'
 
+const getRandomInt = (min, max) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 @JsonController()
 export default class SessionsController {
 
@@ -27,8 +31,10 @@ export default class SessionsController {
     async createSession(
         @Body() session : Partial<Session>
         ) {
+
         const entity = await Session.create(session)
-        const code = Math.floor(Math.random() * Math.floor(9999))
+        
+        const code = getRandomInt(1000,9999)
         entity.id = code
         entity.numberOfPieces = entity.numberOfParticipants === undefined ? 0 : entity.numberOfParticipants * 5
         entity.qualityPieces = entity.numberOfParticipants === undefined ? 0 : entity.numberOfParticipants / 2
@@ -100,6 +106,9 @@ export default class SessionsController {
         
     //     return Event.remove(event)
     // }
+
+      
+    
 
 
 }
