@@ -24,7 +24,8 @@ routing_controllers_1.useKoaServer(app, {
     ]
 });
 exports.io.on('connect', (socket) => {
-    socket.on('NEW_DB', async (sessionId, participantId, sample) => {
+    socket.on('NEW_DB', async (payload) => {
+        const { sessionId, participantId, buffer } = payload;
         const session = await entity_1.Session.findOne(sessionId);
         if (!session)
             throw new routing_controllers_2.NotFoundError('Session not found');
@@ -33,7 +34,7 @@ exports.io.on('connect', (socket) => {
         const participant = await entity_1.Participant.findOne(participantId);
         if (!participant)
             throw new routing_controllers_2.NotFoundError('You are not part of this session');
-        participant.avgDecibels = average(sample);
+        participant.avgDecibels = average(buffer);
         await participant.save();
         const [{ "max": maxAvg }] = await entity_1.Participant.query(`select MAX(avg_decibels) from participants where session_id=${sessionId}`);
         const [speaker] = await entity_1.Participant.query(`select * from participants where avg_decibels=${maxAvg} and session_id=${sessionId}`);

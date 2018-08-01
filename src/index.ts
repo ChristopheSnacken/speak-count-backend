@@ -28,7 +28,8 @@ useKoaServer(app, {
 io.on('connect', (socket) => {
   
 
-    socket.on('NEW_DB',  async (sessionId , participantId , sample) => {
+    socket.on('NEW_DB',  async (payload) => {
+      const {sessionId , participantId , buffer} = payload
       const session = await Session.findOne(sessionId)
       if(!session) throw new NotFoundError('Session not found')
       if(session.status !== 'started') throw new ForbiddenError("the sessison hasn't started yet")
@@ -36,7 +37,7 @@ io.on('connect', (socket) => {
       const participant = await Participant.findOne(participantId)
       if(!participant) throw new NotFoundError('You are not part of this session')
   
-      participant.avgDecibels = average(sample)
+      participant.avgDecibels = average(buffer)
       await participant.save()
   
       const [{"max": maxAvg}] = await Participant.query(`select MAX(avg_decibels) from participants where session_id=${sessionId}`)
