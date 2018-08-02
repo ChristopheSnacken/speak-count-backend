@@ -12,7 +12,7 @@ const routing_controllers_2 = require("routing-controllers");
 const entity_1 = require("./sessions/entity");
 const entity_2 = require("./turns/entity");
 const average = arr => arr.reduce((p, c) => p + c, 0) / arr.length;
-const threshold = -32;
+const threshold = -25;
 const app = new Koa();
 const server = new http_1.Server(app.callback());
 exports.io = IO(server);

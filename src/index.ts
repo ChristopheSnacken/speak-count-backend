@@ -11,7 +11,7 @@ import { NotFoundError, ForbiddenError, BadRequestError } from 'routing-controll
 import { Session, Participant } from './sessions/entity'
 import Turn from './turns/entity'
 const average = arr => arr.reduce( ( p, c ) => p + c, 0 ) / arr.length;
-const threshold = -32
+const threshold = -25
 
 const app = new Koa()
 const server = new Server(app.callback())
