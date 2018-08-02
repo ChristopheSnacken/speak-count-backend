@@ -12,6 +12,7 @@ const routing_controllers_2 = require("routing-controllers");
 const entity_1 = require("./sessions/entity");
 const entity_2 = require("./turns/entity");
 const average = arr => arr.reduce((p, c) => p + c, 0) / arr.length;
+const threshold = -35;
 const app = new Koa();
 const server = new http_1.Server(app.callback());
 exports.io = IO(server);
@@ -38,7 +39,7 @@ exports.io.on('connect', (socket) => {
         await participant.save();
         const [{ "max": maxAvg }] = await entity_1.Participant.query(`select MAX(avg_decibels) from participants where session_id=${sessionId}`);
         const [speaker] = await entity_1.Participant.query(`select * from participants where avg_decibels=${maxAvg} and session_id=${sessionId}`);
-        if (participant.avgDecibels > -30 && speaker.id === participantId && participant.participantStatus === 'inactive') {
+        if (participant.avgDecibels > threshold && speaker.id === participantId && participant.participantStatus === 'inactive') {
             const turn = await entity_2.default.create();
             turn.session = session;
             turn.participant = participant;
@@ -49,7 +50,7 @@ exports.io.on('connect', (socket) => {
             participant.participantStatus = 'active';
             const updatedParticipant = await participant.save();
         }
-        if (participant.avgDecibels < -30 && participant.participantStatus === 'active' || participant.avgDecibels > 20 && speaker.id !== participantId && participant.participantStatus === 'active') {
+        if (participant.avgDecibels < threshold && participant.participantStatus === 'active' || participant.avgDecibels > 20 && speaker.id !== participantId && participant.participantStatus === 'active') {
             console.log('working');
             const turn = await entity_2.default.findOne(participant.lastTurnId);
             if (!turn)
