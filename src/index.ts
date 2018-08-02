@@ -10,8 +10,7 @@ import TurnsController from './turns/controller';
 import { NotFoundError, ForbiddenError, BadRequestError } from 'routing-controllers'
 import { Session, Participant } from './sessions/entity'
 import Turn from './turns/entity'
-const average = arr => arr.reduce( ( p, c ) => p + c, 0 ) / arr.length;
-const threshold = -25
+const average = arr => arr.reduce( ( p, c ) => p + c, 0 ) / arr.length; 
 
 const app = new Koa()
 const server = new Server(app.callback())
@@ -44,7 +43,7 @@ io.on('connect', (socket) => {
       const [{"max": maxAvg}] = await Participant.query(`select MAX(avg_decibels) from participants where session_id=${sessionId}`)
       const [speaker] = await Participant.query(`select * from participants where avg_decibels=${maxAvg} and session_id=${sessionId}`)
   
-      if(participant.avgDecibels > threshold && speaker.id === participantId && participant.participantStatus === 'inactive') {
+      if(participant.avgDecibels > -25 && speaker.id === participantId && participant.participantStatus === 'inactive') {
           
           const turn =  await Turn.create()
           
@@ -73,7 +72,7 @@ io.on('connect', (socket) => {
   
       }
   
-      if(participant.avgDecibels < threshold && participant.participantStatus === 'active' || participant.avgDecibels > 20 && speaker.id !== participantId && participant.participantStatus === 'active') {
+      if(participant.avgDecibels < -25 && participant.participantStatus === 'active' || participant.avgDecibels > 20 && speaker.id !== participantId && participant.participantStatus === 'active') {
           console.log('working')
           const turn = await Turn.findOne(participant.lastTurnId)
           if(!turn) throw new BadRequestError('turn entity not found')
